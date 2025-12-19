@@ -1,0 +1,69 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+venv/
+ENV/
+env/
+
+# uv
+.uv/
+uv.lock  # 주의: 프로젝트에 따라 커밋할 수도 있음
+
+# PyInstaller
+*.spec
+build_src/
+*.exe
+*.app
+
+# 빌드 결과물
+output/
+build/
+dist/
+
+# 설정 파일 (프로젝트별 설정)
+HGSettings.json
+TEST/HGSettings.json
+**/HGSettings.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 테스트/임시 파일
+*.log
+*.tmp
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Cython 임시 파일
+*.c
+*.html
+
+# 프로젝트별 빌드 디렉토리
+TEST/build_src/
+TEST/src_pyd/
+TEST/output/

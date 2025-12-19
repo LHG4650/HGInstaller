@@ -1,8 +1,10 @@
 import os
 from pathlib import Path
-
-from hg_settings import GlobalSettings, LocalSettings  
 import subprocess
+
+from .hg_settings import GlobalSettings, LocalSettings
+
+
 class HgInstaller:
     def __init__(self, program_name: str, project_path: str, option:str=None):
         self.program_name = program_name
@@ -32,12 +34,12 @@ class HgInstaller:
         pyd_path = build_config["pyd_path"]
 
         print(f"### PY2PYD Start ###")
-        from py2pyd import py2pyd
+        from .py2pyd import py2pyd
         py2pyd(src_path, pyd_path)
         print(f"~~~ PY2PYD completed ~~~")
 
         print(f"### Pyinstaller Spec writer Start ###")
-        from pyi_builder import pyi_maker
+        from .pyi_builder import pyi_maker
         pyi_maker(build_config, pyi_config)
         print(f"~~~ Pyinstaller Spec writer completed ~~~")
 
@@ -79,8 +81,12 @@ class HgInstaller:
     def _read_toml(self):
         if not os.path.exists(self.project_path / "pyproject.toml"):
             return []
-        from pyproject_utils import get_dependencies_from_pyproject
-        dependencies = get_dependencies_from_pyproject(self.project_path / "pyproject.toml")
+
+        from .pyproject_utils import get_dependencies_from_pyproject
+
+        dependencies = get_dependencies_from_pyproject(
+            self.project_path / "pyproject.toml"
+        )
         return dependencies
 
     @classmethod

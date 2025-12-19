@@ -5,11 +5,11 @@ from pathlib import Path
 
 def pyi_maker(build_config: dict ,  pyi_config:dict):
     program_name = build_config["program_name"]
-    project_path = build_config["project_path"]
+    project_path = Path(build_config["project_path"])
 
     output_type = pyi_config["output_type"]
     console_mode = pyi_config["console_mode"]
-    spec_path = pyi_config["spec_path"]
+    spec_path = Path(pyi_config["spec_path"])
 
     main_py = pyi_config["main_py"]
 
@@ -17,7 +17,7 @@ def pyi_maker(build_config: dict ,  pyi_config:dict):
     # - main.py 
 
     # # - spec path
-    cmd += ["--specpath", spec_path]
+    cmd += ["--specpath", str(spec_path)]
 
     # - output type
     if output_type in ["onefile","onedir"]:
@@ -38,7 +38,11 @@ def pyi_maker(build_config: dict ,  pyi_config:dict):
     # # - icon 아이콘 경로
     icon_path = pyi_config.get("icon_path")
     if icon_path:
-        cmd += ["--icon", icon_path]
+        # icon_path도 절대 경로로 변환
+        icon_path_obj = Path(icon_path)
+        if not icon_path_obj.is_absolute():
+            icon_path_obj = project_path / icon_path_obj
+        cmd += ["--icon", str(icon_path_obj)]
 
     # # - hidden imports: pyproject.toml의 dependencies 자동 추가
     hidden_imports = pyi_config.get("hidden_imports", [])
@@ -48,7 +52,24 @@ def pyi_maker(build_config: dict ,  pyi_config:dict):
     # # - add_data, collect_data 등 다른 옵션들도 추가
     add_data = pyi_config.get("add_data", [])
     for data in add_data:
-        cmd += ["--add-data", data]
+        # add_data 경로를 프로젝트 루트 기준 절대 경로로 변환
+        # 형식: "src/ui/*;src/ui/" 또는 "src/ui/*;."
+        if ";" in data:
+            src_path, dest_path = data.split(";", 1)
+        else:
+            src_path, dest_path = data, "."
+        
+        # src_path가 절대 경로가 아니면 프로젝트 루트 기준으로 변환
+        # 와일드카드(*)가 포함될 수 있으므로 문자열로 처리
+        if not Path(src_path).is_absolute():
+            # 프로젝트 루트와 결합 (와일드카드 유지)
+            src_path_abs = str(project_path / src_path)
+        else:
+            src_path_abs = src_path
+        
+        # 절대 경로를 문자열로 변환 (Windows 경로 처리)
+        normalized_data = f"{src_path_abs};{dest_path}"
+        cmd += ["--add-data", normalized_data]
     
     collect_data = pyi_config.get("collect_data", [])
     for data in collect_data:
@@ -76,7 +97,7 @@ def pyi_maker(build_config: dict ,  pyi_config:dict):
     print('='*30)
     print("실행할 명령어:", " ".join(cmd))
     try:
-        subprocess.run(cmd, check=True, cwd = project_path)
+        subprocess.run(cmd, check=True, cwd=str(project_path))
         print('='*30)
         return True
     except subprocess.CalledProcessError as e:

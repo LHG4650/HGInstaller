@@ -45,7 +45,7 @@ class HgInstaller:
 
         print(f"### Pyinstaller Run Start ###")
         spec_path = os.path.join(pyi_config["spec_path"],build_config["program_name"]+".spec")
-        subprocess.run(["pyinstaller", spec_path], check=True,cwd=build_config["project_path"])
+        subprocess.run(["pyinstaller", "--noconfirm",spec_path], check=True,cwd=build_config["project_path"])
         print(f"~~~ Pyinstaller Run completed ~~~")
 
     def _init_config(self):

@@ -4,7 +4,7 @@ HGInstaller - Python 빌드 자동화 도구
 PyInstaller, Inno Setup, UI 변환, PYD 변환 등을 자동화하는 라이브러리
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 # 메인 클래스
 from .hg_installer import HgInstaller

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hginstaller"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python 빌드 자동화 도구 - PyInstaller, Inno Setup, UI 변환, PYD 변환 등을 자동화하는 라이브러리"
 readme = "README.md"
 requires-python = ">=3.8.1"

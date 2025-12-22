@@ -58,7 +58,7 @@ class HgInstaller:
         print("       hg.run()")
         print("=" * 50)
 
-    def run(self):
+    def run(self,py2pyd = True, pyi_build = True, inno_build = True):
         build_config = LocalSettings.load("build_config")
         pyi_config = LocalSettings.load("pyi_config")
 
@@ -67,26 +67,28 @@ class HgInstaller:
         # choeck config
         src_path = build_config["src_path"]
         pyd_path = build_config["pyd_path"]
+        if py2pyd:
+            print(f"### PY2PYD Start ###")
+            from .py2pyd import py2pyd
+            py2pyd(src_path, pyd_path)
+            print(f"~~~ PY2PYD completed ~~~")
 
-        print(f"### PY2PYD Start ###")
-        from .py2pyd import py2pyd
-        py2pyd(src_path, pyd_path)
-        print(f"~~~ PY2PYD completed ~~~")
+        if pyi_build:
+            print(f"### Pyinstaller Spec writer Start ###")
+            from .pyi_builder import pyi_maker
+            pyi_maker(build_config, pyi_config)
+            print(f"~~~ Pyinstaller Spec writer completed ~~~")
 
-        print(f"### Pyinstaller Spec writer Start ###")
-        from .pyi_builder import pyi_maker
-        pyi_maker(build_config, pyi_config)
-        print(f"~~~ Pyinstaller Spec writer completed ~~~")
+            print(f"### Pyinstaller Run Start ###")
+            spec_path = os.path.join(build_config["build_src_path"],build_config["program_name"]+".spec")
+            subprocess.run(["pyinstaller", "--noconfirm",spec_path], check=True,cwd=build_config["project_path"])
+            print(f"~~~ Pyinstaller Run completed ~~~")
 
-        print(f"### Pyinstaller Run Start ###")
-        spec_path = os.path.join(build_config["build_src_path"],build_config["program_name"]+".spec")
-        subprocess.run(["pyinstaller", "--noconfirm",spec_path], check=True,cwd=build_config["project_path"])
-        print(f"~~~ Pyinstaller Run completed ~~~")
-
-        print(f"### Inno Setup Run Start ###")
-        from .inno_builder import run_inno
-        run_inno()
-        print(f"~~~ Inno Setup Run completed ~~~")
+        if inno_build:
+            print(f"### Inno Setup Run Start ###")
+            from .inno_builder import run_inno
+            run_inno()
+            print(f"~~~ Inno Setup Run completed ~~~")
         print(f"☆ everything completed ☆")
         print(f"☆ output path : {build_config['output_path']}")
         print(f"☆ output file : {build_config['program_name']}.exe")

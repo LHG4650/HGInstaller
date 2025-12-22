@@ -15,13 +15,6 @@ except ImportError:
     import importlib.resources as pkg_resources
     _TEMPLATE_ISS_PATH = None  # 동적으로 처리
 
-def check_inno_setup(iss_config:dict):
-    print("check_inno_setup")
-    iss_path = iss_config["iss_path"]
-    if os.path.exists(iss_path):
-        return True
-    else:
-        return False
 
 def _get_template_iss_content() -> str:
     """패키지 내부의 template.iss 파일 내용을 읽어온다."""
@@ -132,4 +125,4 @@ def gen_appid():
 
 # 사용 예시
 if __name__ == "__main__":
-    run_inno(iss_config)
+    pass

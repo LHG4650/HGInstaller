@@ -109,7 +109,7 @@ class HgInstaller:
         pyi_config["output_type"] = "onedir"
         pyi_config["console_mode"] = True
         pyi_config["icon_path"] = None
-        pyi_config["add_data"] = ["build_src/src_pyd/*;."]
+        pyi_config["add_data"] = ["build_src/src_pyd/*:."]
         pyi_config["hidden_imports"] = dependencies
         pyi_config["collect_data"] = []
         pyi_config["collect_binary"] = []

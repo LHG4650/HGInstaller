@@ -48,7 +48,7 @@ Issues = "https://github.com/LHG4650/HGInstaller/issues"
 packages = ["hginstaller"]
 
 [tool.setuptools.package-data]
-"*" = ["*.json"]
+"*" = ["*.json", "*.iss"]
 
 [tool.black]
 line-length = 100

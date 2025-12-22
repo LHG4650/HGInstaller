@@ -84,14 +84,14 @@ class HgInstaller:
         build_config["program_name"] = self.program_name
         build_config["project_path"] = self.project_path
         build_config["src_path"] = self.project_path /"src"
-        build_config["pyd_path"] = self.project_path /"build_src"/"src_pyd"
+        build_config["build_src_path"] = self.project_path / "build_src"
+        build_config["pyd_path"] = build_config["build_src_path"]/"src_pyd"
         build_config["output_path"] = self.project_path /"output"
-        build_config["iss_exsist"] = iss_exsist
+        build_config["program_version"] = "0.1.0"
 
         pyi_config = {}
         pyi_config["output_type"] = "onedir"
         pyi_config["console_mode"] = True
-        pyi_config["spec_path"] = self.project_path / "build_src"
         pyi_config["icon_path"] = None
         pyi_config["add_data"] = ["build_src/src_pyd/*;."]
         pyi_config["hidden_imports"] = dependencies
@@ -102,8 +102,15 @@ class HgInstaller:
         pyi_config["exclude_module"] = []
         pyi_config["main_py"] = "main.py"   
 
+        iss_config = {}
+        iss_config["app_publisher"] = "Publisher"
+        iss_config["app_url"] = "url"
+
         LocalSettings.save("build_config", build_config)
         LocalSettings.save("pyi_config", pyi_config)
+        LocalSettings.save("iss_config", iss_config)
+
+
 
     def _read_toml(self):
         if not os.path.exists(self.project_path / "pyproject.toml"):

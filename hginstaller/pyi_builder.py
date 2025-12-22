@@ -9,7 +9,7 @@ def pyi_maker(build_config: dict ,  pyi_config:dict):
 
     output_type = pyi_config["output_type"]
     console_mode = pyi_config["console_mode"]
-    spec_path = Path(pyi_config["spec_path"])
+    spec_path = Path(build_config["build_src_path"])
 
     main_py = pyi_config["main_py"]
 

@@ -32,15 +32,23 @@ class HgInstaller:
         print("       from hginstaller import HgInstaller")
         print("       HgInstaller('프로그램이름', r'프로젝트_루트_경로', option='init')")
         print()
-        print("2) 추가 PyInstaller 설정(add_config)")
+        print("2) 추가 설정(add_config)")
+        print("   - build_config, pyi_config, iss_config 모두 설정 가능")
         print("   - 필요할 때마다 일부만 넣어서 호출 가능")
         print("   - 이미 저장된 값은 유지되고, 새 값만 추가/갱신됨")
         print("   - 예시:")
         print("       hg = HgInstaller('프로그램이름', r'프로젝트_루트_경로')")
         print("       hg.add_config(")
-        print("           icon='app.ico',                   # 아이콘 (옵션)")
-        print("           add_files=['src/ui/*;src/ui/'],   # datas (옵션)")
-        print("           collect_binaries=['pkg'],        # collect_binaries (옵션)")
+        print("           # build_config")
+        print("           program_version='1.0.0',")
+        print("           # pyi_config")
+        print("           icon='app.ico',")
+        print("           output_type='onefile',")
+        print("           add_files=['src/ui/*;src/ui/'],")
+        print("           collect_binaries=['pkg'],")
+        print("           # iss_config")
+        print("           app_publisher='My Company',")
+        print("           app_url='https://example.com',")
         print("       )")
         print()
         print("3) 빌드 실행")
@@ -74,6 +82,14 @@ class HgInstaller:
         spec_path = os.path.join(pyi_config["spec_path"],build_config["program_name"]+".spec")
         subprocess.run(["pyinstaller", "--noconfirm",spec_path], check=True,cwd=build_config["project_path"])
         print(f"~~~ Pyinstaller Run completed ~~~")
+
+        print(f"### Inno Setup Run Start ###")
+        from .inno_builder import run_inno
+        run_inno()
+        print(f"~~~ Inno Setup Run completed ~~~")
+        print(f"☆ everything completed ☆")
+        print(f"☆ output path : {build_config['output_path']}")
+        print(f"☆ output file : {build_config['program_name']}.exe")
 
     def _init_config(self):
         build_config = {}
@@ -150,15 +166,31 @@ class HgInstaller:
 
     def add_config(
         self,
+        # build_config 필드들
+        program_name=None,
+        project_path=None,
+        src_path=None,
+        build_src_path=None,
+        pyd_path=None,
+        output_path=None,
+        program_version=None,
+        # pyi_config 필드들
         icon=None,
+        output_type=None,
+        console_mode=None,
         add_files=None,
+        hidden_imports=None,
         collect_files=None,
         collect_binaries=None,
         collect_submodules=None,
         collect_all=None,
         exclude_modules=None,
+        main_py=None,
+        # iss_config 필드들
+        app_publisher=None,
+        app_url=None,
     ):
-        """PyInstaller 관련 설정을 부분적으로/누적해서 갱신한다.
+        """모든 config(build_config, pyi_config, iss_config) 설정을 부분적으로/누적해서 갱신한다.
 
         - 어떤 인자든 None 이면 건너뛰고, 기존 설정 값은 유지된다.
         - 리스트 계열 인자는 기존 리스트에 '중복 없이' 새 값만 추가된다.
@@ -166,10 +198,33 @@ class HgInstaller:
         """
         build_config = LocalSettings.load("build_config")
         pyi_config = LocalSettings.load("pyi_config")
+        iss_config = LocalSettings.load("iss_config")
 
-        # 아이콘: 값이 넘어오면 교체, 아니면 기존 유지
-        if icon:
+        # build_config 업데이트
+        if program_name is not None:
+            build_config["program_name"] = program_name
+        if project_path is not None:
+            build_config["project_path"] = Path(project_path) if not isinstance(project_path, Path) else project_path
+        if src_path is not None:
+            build_config["src_path"] = Path(src_path) if not isinstance(src_path, Path) else src_path
+        if build_src_path is not None:
+            build_config["build_src_path"] = Path(build_src_path) if not isinstance(build_src_path, Path) else build_src_path
+        if pyd_path is not None:
+            build_config["pyd_path"] = Path(pyd_path) if not isinstance(pyd_path, Path) else pyd_path
+        if output_path is not None:
+            build_config["output_path"] = Path(output_path) if not isinstance(output_path, Path) else output_path
+        if program_version is not None:
+            build_config["program_version"] = program_version
+
+        # pyi_config 업데이트
+        if icon is not None:
             pyi_config["icon_path"] = icon
+        if output_type is not None:
+            pyi_config["output_type"] = output_type
+        if console_mode is not None:
+            pyi_config["console_mode"] = console_mode
+        if main_py is not None:
+            pyi_config["main_py"] = main_py
 
         def _merge_list(key: str, new_values):
             """기존 리스트에 새 값만 append (중복은 무시)."""
@@ -188,13 +243,22 @@ class HgInstaller:
             pyi_config[key] = exist
 
         _merge_list("add_data", add_files)
+        _merge_list("hidden_imports", hidden_imports)
         _merge_list("collect_data", collect_files)
         _merge_list("collect_binary", collect_binaries)
         _merge_list("collect_submodules", collect_submodules)
         _merge_list("collect_all", collect_all)
         _merge_list("exclude_module", exclude_modules)
 
+        # iss_config 업데이트
+        if app_publisher is not None:
+            iss_config["app_publisher"] = app_publisher
+        if app_url is not None:
+            iss_config["app_url"] = app_url
+
+        LocalSettings.save("build_config", build_config)
         LocalSettings.save("pyi_config", pyi_config)
+        LocalSettings.save("iss_config", iss_config)
 
 if __name__ == "__main__":
     program_name = "NX_Logging"

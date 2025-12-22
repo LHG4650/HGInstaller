@@ -79,7 +79,7 @@ class HgInstaller:
         print(f"~~~ Pyinstaller Spec writer completed ~~~")
 
         print(f"### Pyinstaller Run Start ###")
-        spec_path = os.path.join(pyi_config["build_src_path"],build_config["program_name"]+".spec")
+        spec_path = os.path.join(build_config["build_src_path"],build_config["program_name"]+".spec")
         subprocess.run(["pyinstaller", "--noconfirm",spec_path], check=True,cwd=build_config["project_path"])
         print(f"~~~ Pyinstaller Run completed ~~~")
 

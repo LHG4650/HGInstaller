@@ -54,8 +54,8 @@ def pyi_maker(build_config: dict ,  pyi_config:dict):
     for data in add_data:
         # add_data 경로를 프로젝트 루트 기준 절대 경로로 변환
         # 형식: "src/ui/*;src/ui/" 또는 "src/ui/*;."
-        if ";" in data:
-            src_path, dest_path = data.split(";", 1)
+        if ":" in data:
+            src_path, dest_path = data.split(":", 1)
         else:
             src_path, dest_path = data, "."
         

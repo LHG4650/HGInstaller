@@ -1,4 +1,3 @@
-import re
 import subprocess
 import os
 import shutil
@@ -86,16 +85,14 @@ def update_iss(iss_file_path: Path):
     
     - app_id는 제외하고 나머지 값들만 업데이트
     - 기존 .iss 파일에서 app_id를 찾아서 유지
+    - 각 줄을 통째로 교체하는 방식으로 처리
     """
     build_config = LocalSettings.load("build_config")
     iss_config = LocalSettings.load("iss_config")
     
     # 기존 .iss 파일 읽기
-    content = iss_file_path.read_text(encoding='utf-8')
-    
-    # 기존 app_id 추출 (유지하기 위해)
-    app_id_match = re.search(r'#define\s+MyAppId\s+"([^"]+)"', content)
-    existing_app_id = app_id_match.group(1) if app_id_match else gen_appid()
+    lines = iss_file_path.read_text(encoding='utf-8').splitlines()
+
     
     # 설정 값 추출
     app_name = build_config["program_name"]
@@ -105,17 +102,28 @@ def update_iss(iss_file_path: Path):
     app_exe_name = app_name + ".exe"
     project_folder = str(build_config["project_path"])
     
-    # #define 값 치환 (app_id는 기존 값 유지)
-    content = re.sub(r'#define\s+MyAppName\s+"[^"]*"', f'#define MyAppName "{app_name}"', content)
-    content = re.sub(r'#define\s+MyAppVersion\s+"[^"]*"', f'#define MyAppVersion "{app_version}"', content)
-    content = re.sub(r'#define\s+MyAppPublisher\s+"[^"]*"', f'#define MyAppPublisher "{app_publisher}"', content)
-    content = re.sub(r'#define\s+MyAppURL\s+"[^"]*"', f'#define MyAppURL "{app_url}"', content)
-    content = re.sub(r'#define\s+MyAppExeName\s+"[^"]*"', f'#define MyAppExeName "{app_exe_name}"', content)
-    content = re.sub(r'#define\s+ProjectFolder\s+"[^"]*"', f'#define ProjectFolder "{project_folder}"', content)
-    # app_id는 기존 값 유지
-    content = re.sub(r'#define\s+MyAppId\s+"[^"]*"', f'#define MyAppId "{existing_app_id}"', content)
+    # 각 줄을 확인하여 해당하는 #define 줄을 통째로 교체
+    updated_lines = []
+    for line in lines:
+        if line.strip().startswith('#define MyAppName'):
+            updated_lines.append(f'#define MyAppName "{app_name}"')
+        elif line.strip().startswith('#define MyAppVersion'):
+            updated_lines.append(f'#define MyAppVersion "{app_version}"')
+        elif line.strip().startswith('#define MyAppPublisher'):
+            updated_lines.append(f'#define MyAppPublisher "{app_publisher}"')
+        elif line.strip().startswith('#define MyAppURL'):
+            updated_lines.append(f'#define MyAppURL "{app_url}"')
+        elif line.strip().startswith('#define MyAppExeName'):
+            updated_lines.append(f'#define MyAppExeName "{app_exe_name}"')
+        elif line.strip().startswith('#define ProjectFolder'):
+            updated_lines.append(f'#define ProjectFolder "{project_folder}"')
+
+        else:
+            # 다른 줄은 그대로 유지
+            updated_lines.append(line)
     
     # 업데이트된 내용 저장
+    content = '\n'.join(updated_lines)
     iss_file_path.write_text(content, encoding='utf-8')
     print(f"✅ Inno Setup 스크립트 업데이트 완료: {iss_file_path}")
     
